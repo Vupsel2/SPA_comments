@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'comments_app',
+    
 ]
 
 MIDDLEWARE = [
@@ -52,6 +53,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'app.urls'
+RECAPTCHA_PUBLIC_KEY = 'your-public-key'
+RECAPTCHA_PRIVATE_KEY = 'your-private-key'
 
 TEMPLATES = [
     {
@@ -77,8 +80,14 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'db_dzencode',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': '192.168.31.18',
+        'PORT': '3306',
+    
     }
 }
 

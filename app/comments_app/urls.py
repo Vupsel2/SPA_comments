@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import Comment
+from .views import comment
 
 urlpatterns = [
-    path('comments', Comment)
+    path('', comment)
 ]
