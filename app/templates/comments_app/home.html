@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Комментарии</h1>
+
+<ul id="comment-list">
+    {% for comment in comments %}
+        {% include 'comments_app/comment_item.html' with comment=comment %}
+    {% endfor %}
+</ul>
+
+<button class="add-comment-button">Добавить комментарий</button>
+
+<div id="comment-form-container" style="display: none;">
+    <h2>Добавить комментарий</h2>
+    <form id="comment-form" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Добавить комментарий</button>
+    </form>
+</div>
+<script>
+    const commentUrl = "{% url 'comment' %}";
+</script>
+{% endblock %}

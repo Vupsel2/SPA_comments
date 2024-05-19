@@ -1,0 +1,15 @@
+<li class="comment-box" id="comment-{{ comment.id }}">
+    <span class="user-name">{{ comment.user_name }}</span>
+    <p>{{ comment.text }}</p>
+    <button class="reply-button" data-comment-id="{{ comment.id }}">Ответить</button>
+    
+    {% if comment.replies.all %}
+        <ul class="replies">
+            {% for reply in comment.replies.all %}
+                {% include 'comments_app/comment_item.html' with comment=reply %}
+            {% endfor %}
+        </ul>
+        {% else %}
+            <ul class="replies" id="replies-{{ comment.id }}" data-comment-id="{{ comment.id }}"></ul>
+        {% endif %}
+    </li>
