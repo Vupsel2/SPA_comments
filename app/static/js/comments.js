@@ -19,7 +19,11 @@ $(document).ready(function() {
         event.preventDefault();
         let formData = new FormData(this);
         console.log("formData", formData);
-
+        for (let pair of formData.entries()) {
+            console.log(pair[0]+ ', ' + pair[1]);
+        }
+ 
+        console.log("formData IMAGE", formData.entries());
         let imageInput = $('#id_image')[0];
         let textFileInput = $('#id_text_file')[0];
         console.log(imageInput);
@@ -38,7 +42,7 @@ $(document).ready(function() {
             
             
         }        
-
+  
 
         if (textFileInput.files.length > 0) {
             let textFile = textFileInput.files[0];
@@ -52,9 +56,7 @@ $(document).ready(function() {
             }
         }
 
-        for (let pair of formData.entries()) {
-            console.log(pair[0]+ ', ' + pair[1]);
-        }
+
         $.ajax({
             url: commentUrl,
             method: "POST",

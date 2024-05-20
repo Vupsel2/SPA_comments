@@ -17,7 +17,7 @@ def comment(request):
         
         if form.is_valid():
             
-            comment = form.save(commit=False)
+            comment = form.save()
             print("asdssssss",comment.image.url)
             print("Image saved at URL:", comment.image.url)
             if comment.image:
@@ -27,9 +27,10 @@ def comment(request):
                 if width > 320 or height > 240:
                     img = Image.open(image)
                     img.thumbnail((320, 240), Image.Resampling.LANCZOS)
-                    img.save(comment.image.path) 
-                    print("paaaath",os.path.join(settings.BASE_DIR, comment.image.url))
+                    img.save(os.path.join(settings.MEDIA_ROOT, comment.image.name)) 
+                    print("paaaath",os.path.join(settings.MEDIA_ROOT, comment.image.name))
                     
+                
                     
                 
                     
@@ -40,7 +41,7 @@ def comment(request):
                 if not comment.text_file.name.endswith('.txt'):
                     return JsonResponse({'error': 'Only .txt files are allowed'}, status=400)
                 
-            comment.save()
+            
 
             parent_comment_id = form.cleaned_data.get('parent_comment_id')
             if parent_comment_id:
