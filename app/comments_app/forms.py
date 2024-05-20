@@ -6,4 +6,4 @@ class comments_form(forms.ModelForm):
 
     class Meta:
         model = Comment
-        fields = ["user_name", "email", "homepage", "text"]
+        fields = ['user_name', 'email', 'homepage', 'text', 'image', 'text_file']

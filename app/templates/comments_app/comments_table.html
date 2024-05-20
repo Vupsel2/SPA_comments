@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<table id="comments-table">
+    
+    <thead>
+        <th>
+            <a>User Name</a>
+            <a href="?sort=user_name&order=asc"> ↑</a>
+            <a href="?sort=user_name&order=desc">↓</a>
+        </th>
+        <th>
+            <a>E-mail</a>
+            <a href="?sort=email&order=asc"> ↑</a>
+            <a href="?sort=email&order=desc">↓</a>
+        </th>
+        <th>
+            <a>Date Added</a>
+            <a href="?sort=created_date&order=asc"> ↑</a>
+            <a href="?sort=created_date&order=desc">↓</a>
+        </th>
+        <th>
+            <a>Text</a>
+            
+        </th>
+    </thead>
+    <tbody>
+        {% for comment in comments %}
+        <tr>
+            <td>{{ comment.user_name }}</td>
+            <td>{{ comment.email }}</td>
+            <td>{{ comment.created_date }}</td>
+            <td>{{ comment.text|slice:":20" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

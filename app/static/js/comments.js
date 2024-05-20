@@ -17,34 +17,71 @@ const csrftoken = getCookie('csrftoken');
 $(document).ready(function() {
     $('#comment-form').on('submit', function(event) {
         event.preventDefault();
-        let formData = $(this).serialize();
+        let formData = new FormData(this);
+        console.log("formData", formData);
+
+        let imageInput = $('#id_image')[0];
+        let textFileInput = $('#id_text_file')[0];
+        console.log(imageInput);
+        console.log("dddddddddddddddddddddd");
+        
+        if (imageInput.files.length > 0) {
+
+            let imageFile = imageInput.files[0];
+
+            let img = new Image();
+
+            img.src = window.URL.createObjectURL(imageFile);
+            console.log("img.src", img.src);
+            formData.append('image', imageFile);
+            console.log("Путь к файлу:", imageFile);
+            
+            
+        }        
+
+
+        if (textFileInput.files.length > 0) {
+            let textFile = textFileInput.files[0];
+            if (textFile.size > 100 * 1024) {
+                alert('Text file size must be less than 100 KB.');
+                return;
+            }
+            if (!textFile.name.endsWith('.txt')) {
+                alert('Only .txt files are allowed.');
+                return;
+            }
+        }
+
+        for (let pair of formData.entries()) {
+            console.log(pair[0]+ ', ' + pair[1]);
+        }
         $.ajax({
             url: commentUrl,
             method: "POST",
             data: formData,
+            processData: false, 
+            contentType: false,
             headers: {
                 'X-CSRFToken': csrftoken
             },
             success: function(data) {
                 if (data.html) {
                     if (data.parent_comment_id) {
+                        let parentComment = $('#comment-' + data.parent_comment_id);
                         let repliesContainer = $('#replies-' + data.parent_comment_id);
-                        console.log('repliesContainer.length',repliesContainer.length )
-                        
-                        if (repliesContainer.length === 0) {
-                            repliesContainer = $('<ul class="replies"></ul>');
-                            repliesContainer.attr('id', 'replies-' + data.parent_comment_id);
-                            repliesContainer.attr('data-comment-id', data.parent_comment_id);
-                            $('#comment-' + data.parent_comment_id).append(repliesContainer);
-                        }
-                            repliesContainer.append(data.html);
+                        repliesContainer.show();
+                        console.log(repliesContainer);
+                        repliesContainer.append(data.html);
 
+                        if (!parentComment.closest('.comment-box').data('parent-comment-id') && repliesContainer.children().length === 1){
+                            let toggleButton = $('<button class="toggle-replies-button" data-comment-id="' + data.parent_comment_id + '">Скрыть комментарии</button>');
+                            parentComment.append(toggleButton);
+                        }
                     } else {
                         const commentList = $('#comment-list');
-
-                        commentList.append(data.html);
+                        commentList.prepend(data.html);
                     }
-                } 
+                }
                 $('#comment-form')[0].reset();
                 $('#id_parent_comment_id').val('');
                 $('#comment-form-container').hide();
@@ -52,7 +89,7 @@ $(document).ready(function() {
                 $('.reply-button').text('Ответить');
             },
             error: function(xhr, status, error) {
-                console.error(xhr.responseText);  
+                console.error(xhr.responseText);
             }
         });
     });
@@ -80,6 +117,20 @@ $(document).ready(function() {
         } else {
             $(this).text('Ответить');
             $('#comment-form-container').hide();
+        }
+    });
+
+    $(document).on('click', '.toggle-replies-button', function() {
+        var commentId = $(this).attr('data-comment-id');
+        var repliesContainer = $('#replies-' + commentId);
+        console.log(repliesContainer);
+        if (repliesContainer.is(':visible')) {
+            repliesContainer.hide();
+            $(this).text('Посмотреть комментарии');
+        } else {
+            repliesContainer.find('.replies').show();
+            repliesContainer.show();
+            $(this).text('Скрыть комментарии');
         }
     });
 });
