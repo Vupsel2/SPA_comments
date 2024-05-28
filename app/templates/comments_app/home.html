@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<canvas id="resize-canvas" style="display:none;"></canvas>
 <h1>Комментарии</h1>
 <a href="/comments" class="button">Таблица комментариев</a>
 <button class="add-comment-button">Добавить комментарий</button>
@@ -29,18 +28,29 @@
     </span>
 </div>
 
-
-
 <div id="comment-form-container" style="display: none;">
     <h2>Добавить комментарий</h2>
-    <form id="comment-form"  method="post" enctype="multipart/form-data">
+    <form id="comment-form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        <div class="html-tag-buttons">
+            <button type="button" data-tag="strong">[strong]</button>
+            <button type="button" data-tag="i">[i]</button>
+            <button type="button" data-tag="code">[code]</button>
+            <button type="button" data-tag="a">[a]</button>
+        </div>
+        <div id="comment-form-errors" class="form-errors"></div>
         <button type="submit">Отправить</button>
+        <button type="button" id="previewButton">Предпросмотр</button>
     </form>
+    
+    <div id="previewArea" style="display:none; border: 1px solid #ccc; padding: 10px; margin-top: 10px;">
+        <h3>Предпросмотр</h3>
+        <p class="preview-text"></p>
+        <img class="preview-image" src="" alt="Preview Image" style="max-width: 320px; max-height: 240px;"/>
+    </div>
 </div>
 <script>
     const commentUrl = "{% url 'comment' %}";
 </script>
 {% endblock %}
-

@@ -18,31 +18,25 @@ $(document).ready(function() {
     $('#comment-form').on('submit', function(event) {
         event.preventDefault();
         let formData = new FormData(this);
-        console.log("formData", formData);
-        for (let pair of formData.entries()) {
-            console.log(pair[0]+ ', ' + pair[1]);
+        
+        var textWithoutTags = formData.get('text').replace(/<[^>]+>/g, '');
+        console.log(textWithoutTags);
+        console.log(textWithoutTags.length);
+        if (textWithoutTags.length === 0) {
+            alert('Comments without text are not allowed');
+            return;
         }
- 
-        console.log("formData IMAGE", formData.entries());
+
         let imageInput = $('#id_image')[0];
         let textFileInput = $('#id_text_file')[0];
-        console.log(imageInput);
-        console.log("dddddddddddddddddddddd");
-        
+ 
         if (imageInput.files.length > 0) {
-
             let imageFile = imageInput.files[0];
-
             let img = new Image();
-
             img.src = window.URL.createObjectURL(imageFile);
             console.log("img.src", img.src);
             formData.append('image', imageFile);
-            console.log("Путь к файлу:", imageFile);
-            
-            
         }        
-  
 
         if (textFileInput.files.length > 0) {
             let textFile = textFileInput.files[0];
@@ -55,7 +49,6 @@ $(document).ready(function() {
                 return;
             }
         }
-
 
         $.ajax({
             url: commentUrl,
@@ -90,11 +83,36 @@ $(document).ready(function() {
                 $('.add-comment-button').text('Добавить комментарий');
                 $('.reply-button').text('Ответить');
             },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
+            error: function(response) {
+                const errors = response.responseJSON.errors;
+                console.log(errors);
+                let error = '';
+                for (const field in errors) {
+                    error += field + ': ' + errors[field].join(', ') + '\n';
+                }
+                $('#comment-form-errors').text(error);
             }
-        });
+        }); 
     });
+
+$('#previewButton').on('click', function() {
+    let formData = new FormData($('#comment-form')[0]);
+    let textValue = formData.get('text');
+    let previewText = $('#previewArea .preview-text');
+    previewText.html(textValue);
+
+    let imageInput = $('#id_image')[0];
+    if (imageInput.files.length > 0) {
+        let imageFile = imageInput.files[0];
+        let img = new Image();
+        img.src = window.URL.createObjectURL(imageFile);
+        $('#previewArea .preview-image').attr('src', img.src).show();
+    } else {
+        $('#previewArea .preview-image').hide();
+    }
+
+    $('#previewArea').show();
+});
 
     $('.add-comment-button').on('click', function() {
         $('#id_parent_comment_id').val('');
@@ -125,14 +143,29 @@ $(document).ready(function() {
     $(document).on('click', '.toggle-replies-button', function() {
         var commentId = $(this).attr('data-comment-id');
         var repliesContainer = $('#replies-' + commentId);
-        console.log(repliesContainer);
         if (repliesContainer.is(':visible')) {
             repliesContainer.hide();
             $(this).text('Посмотреть комментарии');
         } else {
-            repliesContainer.find('.replies').show();
             repliesContainer.show();
             $(this).text('Скрыть комментарии');
         }
+    });
+
+    $('.html-tag-buttons button').on('click', function() {
+        var tag = $(this).data('tag');
+        var textarea = $('#id_text');
+        var start = textarea[0].selectionStart;
+        var end = textarea[0].selectionEnd;
+        var text = textarea.val();
+        var before = text.substring(0, start);
+        var after = text.substring(end, text.length);
+        var content = text.substring(start, end);
+        var newText = before + '<' + tag + '>' + content + '</' + tag + '>' + after;
+        textarea.val(newText);
+
+        var newPosition = start + tag.length + 2;
+        textarea[0].setSelectionRange(newPosition, newPosition);
+        textarea.focus();
     });
 });

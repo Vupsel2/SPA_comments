@@ -10,6 +10,8 @@ class Comment(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='images/', null=True, blank=True)
     text_file = models.FileField(upload_to='text_files/', null=True, blank=True)
+
+
     def __str__(self):
         return self.text[:200]
     
