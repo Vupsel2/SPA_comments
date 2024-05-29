@@ -32,15 +32,22 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'comments_app',
     
+    
 ]
+ASGI_APPLICATION = 'app.asgi.application'
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

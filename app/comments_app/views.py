@@ -2,48 +2,50 @@ from django.shortcuts import render
 from .forms import comments_form
 from .models import Comment
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from django.core.files.images import get_image_dimensions
 from PIL import Image
 import os
+from urllib.parse import urljoin
 from django.conf import settings
 
+def upload(f):
+    with open(os.path.join(settings.MEDIA_ROOT, 'text_files', f.name), 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
 
-def comment(request):
+def upload_files(request):
     if request.method == 'POST':
-        form = comments_form(request.POST,request.FILES)
+        txt_file = request.FILES.get('text_file')
+        image_file = request.FILES.get('image')
+
+        print(txt_file)
+        errors = {}
+        response_data={}
+        if txt_file:
+            upload(txt_file)
+            print("!!!!!!!Upload!!!!!")
+            response_data['txt_file'] = os.path.join('/text_files/', txt_file.name)
+
         
-        if form.is_valid():
-            
-            comment = form.save()
+        if image_file:
+            image = image_file
+            width, height = get_image_dimensions(image)
+            if width > 320 or height > 240:
+                img = Image.open(image)
+                img.thumbnail((320, 240), Image.Resampling.LANCZOS)
+                img.save(os.path.join(settings.MEDIA_ROOT,'images', image_file.name))
+            response_data['image_file'] = os.path.join('/images/', image_file.name)
 
-            if comment.image:
-              #  print("Image saved",comment.image.path)
-                image = comment.image
-                width, height = get_image_dimensions(image)
-                if width > 320 or height > 240:
-                    img = Image.open(image)
-                    img.thumbnail((320, 240), Image.Resampling.LANCZOS)
-                    img.save(os.path.join(settings.MEDIA_ROOT, comment.image.name)) 
-                   # print("paaaath",os.path.join(settings.MEDIA_ROOT, comment.image.name))
-                    
-                
-            parent_comment_id = form.cleaned_data.get('parent_comment_id')
-            if parent_comment_id:
-                parent_comment = Comment.objects.get(id=parent_comment_id)
-                comment.parent_comment = parent_comment
-                comment.save()
-            rendered_comment = render_to_string('comments_app/comment_item.html', {'comment': comment,})
 
-            return JsonResponse({'html': rendered_comment, 'parent_comment_id': comment.parent_comment_id})  
-        else:
-            #print ("asdas ", form.errors)
-            return JsonResponse({'errors': form.errors}, status=400)
+        if errors:  
+            return JsonResponse({'errors': errors}, status=400)
 
-    errors = dict(form.errors.items())
-    return JsonResponse({'error': errors}, status=400)
+
+        return JsonResponse(response_data)
+
+    return JsonResponse({'errors': 'Bad request method'}, status=400)
 
 def home(request):
     comment_list = Comment.objects.filter(parent_comment__isnull=True).order_by('-created_date')

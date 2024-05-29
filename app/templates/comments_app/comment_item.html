@@ -3,6 +3,7 @@
     <p>{{ comment.text|safe }}</p>
     {% if comment.image %}
         <img src="{{ comment.image.url }}" alt="comment image">
+        <div>"{{ comment.image.url }}"</div>
     {% endif %}
     {% if comment.text_file %}
         <a href="{{ comment.text_file.url }}" target="_blank">Скачать текстовый файл</a>

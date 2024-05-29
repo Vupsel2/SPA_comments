@@ -15,85 +15,112 @@ function getCookie(name) {
 const csrftoken = getCookie('csrftoken');
 
 $(document).ready(function() {
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/comments/');
+    socket.onopen = function(event) {
+        console.log("WebSocket is open now.");
+    };
+
+    socket.onclose = function(event) {
+        console.log("WebSocket is closed now.");
+    };
+    socket.onerror = function(error) {
+        console.log("WebSocket Error: ", error);
+    };
+
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.html) {
+            if (data.parent_comment_id) {
+                let parentComment = $('#comment-' + data.parent_comment_id);
+                let repliesContainer = $('#replies-' + data.parent_comment_id);
+                repliesContainer.show();
+                console.log(repliesContainer);
+                repliesContainer.append(data.html);
+
+                if (!parentComment.closest('.comment-box').data('parent-comment-id') && repliesContainer.children().length === 1){
+                    let toggleButton = $('<button class="toggle-replies-button" data-comment-id="' + data.parent_comment_id + '">Скрыть комментарии</button>');
+                    parentComment.append(toggleButton);
+                }
+            } else {
+                const commentList = $('#comment-list');
+                commentList.prepend(data.html);
+            }
+            $('#comment-form')[0].reset();
+            $('#id_parent_comment_id').val('');
+            $('#comment-form-container').hide();
+            $('.add-comment-button').text('Добавить комментарий');
+            $('.reply-button').text('Ответить');
+        }else if (data.errors) {
+            let fieldNames = Object.keys(data.errors);
+            let firstFieldErrors = data.errors[fieldNames[0]];
+            $('#comment-form-errors').text(firstFieldErrors);
+        }
+
+    };
+
     $('#comment-form').on('submit', function(event) {
         event.preventDefault();
         let formData = new FormData(this);
-        
+
         var textWithoutTags = formData.get('text').replace(/<[^>]+>/g, '');
-        console.log(textWithoutTags);
-        console.log(textWithoutTags.length);
         if (textWithoutTags.length === 0) {
             alert('Comments without text are not allowed');
             return;
         }
 
-        let imageInput = $('#id_image')[0];
-        let textFileInput = $('#id_text_file')[0];
- 
-        if (imageInput.files.length > 0) {
-            let imageFile = imageInput.files[0];
-            let img = new Image();
-            img.src = window.URL.createObjectURL(imageFile);
-            console.log("img.src", img.src);
-            formData.append('image', imageFile);
-        }        
 
-        if (textFileInput.files.length > 0) {
-            let textFile = textFileInput.files[0];
-            if (textFile.size > 100 * 1024) {
-                alert('Text file size must be less than 100 KB.');
-                return;
+        var txtFile= formData.get('text_file')
+        var image= formData.get('image')
+
+        let jsonData = {};
+        formData.forEach((value, key) => {
+            jsonData[key] = value;
+        });
+        
+        if (txtFile.size > 0 || image.size > 0) {
+            if (txtFile.size > 0) {
+                var filetype = txtFile.name.split('.').pop();
+    
+                if (filetype !== 'txt'){
+                    alert('Only txt files allowed');
+                    return;
+                }
             }
-            if (!textFile.name.endsWith('.txt')) {
-                alert('Only .txt files are allowed.');
-                return;
-            }
+
+            var fileformData = new FormData();
+            fileformData.append('text_file', txtFile)
+            fileformData.append('image', image);
+            $.ajax({
+                url: commentUrl,
+                method: "POST",
+                data: fileformData,
+                processData: false, 
+                contentType: false,
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                success: function(data) {
+                    console.log("success", data)
+                    jsonData['image']=data.image_file;
+                    jsonData['text_file']=data.txt_file; 
+                    
+                    console.log(JSON.stringify(jsonData));
+                    socket.send(JSON.stringify(jsonData));
+ 
+                },  
+
+
+                error: function(response) {
+                    console.log(response);
+                }
+            });
+        }
+        else {
+            socket.send(JSON.stringify(jsonData));
         }
 
-        $.ajax({
-            url: commentUrl,
-            method: "POST",
-            data: formData,
-            processData: false, 
-            contentType: false,
-            headers: {
-                'X-CSRFToken': csrftoken
-            },
-            success: function(data) {
-                if (data.html) {
-                    if (data.parent_comment_id) {
-                        let parentComment = $('#comment-' + data.parent_comment_id);
-                        let repliesContainer = $('#replies-' + data.parent_comment_id);
-                        repliesContainer.show();
-                        console.log(repliesContainer);
-                        repliesContainer.append(data.html);
-
-                        if (!parentComment.closest('.comment-box').data('parent-comment-id') && repliesContainer.children().length === 1){
-                            let toggleButton = $('<button class="toggle-replies-button" data-comment-id="' + data.parent_comment_id + '">Скрыть комментарии</button>');
-                            parentComment.append(toggleButton);
-                        }
-                    } else {
-                        const commentList = $('#comment-list');
-                        commentList.prepend(data.html);
-                    }
-                }
-                $('#comment-form')[0].reset();
-                $('#id_parent_comment_id').val('');
-                $('#comment-form-container').hide();
-                $('.add-comment-button').text('Добавить комментарий');
-                $('.reply-button').text('Ответить');
-            },
-            error: function(response) {
-                const errors = response.responseJSON.errors;
-                console.log(errors);
-                let error = '';
-                for (const field in errors) {
-                    error += field + ': ' + errors[field].join(', ') + '\n';
-                }
-                $('#comment-form-errors').text(error);
-            }
-        }); 
     });
+
 
 $('#previewButton').on('click', function() {
     let formData = new FormData($('#comment-form')[0]);

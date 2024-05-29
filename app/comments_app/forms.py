@@ -7,6 +7,8 @@ ALLOWED_TAGS = ['a','i', 'code', 'strong']
 ALLOWED_ATTRIBUTES = ['href', 'title']
 
 def validate_html(value):
+    if value.count('<') != value.count('>'):
+        raise ValidationError('HTML теги должны быть закрыты.')
     stack = []
     tag_re = re.compile(r'<(\/?)(\w+)([^>]*?)>')
 
