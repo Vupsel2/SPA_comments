@@ -1,3 +1,16 @@
+let savedTxtFile = null;
+let savedImageFile = null;
+
+const secretKey = 'qwesaxxcacxz#q123'; 
+
+function generateJWT(payload, secretKey) {
+    const header = { alg: "HS256", typ: "JWT" };
+    const sHeader = JSON.stringify(header);
+    const sPayload = JSON.stringify(payload);
+    const sJWT = KJUR.jws.JWS.sign("HS256", sHeader, sPayload, secretKey);
+    return sJWT;
+}
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -30,34 +43,94 @@ $(document).ready(function() {
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
         if (data.html) {
-            if (data.parent_comment_id) {
-                let parentComment = $('#comment-' + data.parent_comment_id);
-                let repliesContainer = $('#replies-' + data.parent_comment_id);
-                repliesContainer.show();
-                console.log(repliesContainer);
-                repliesContainer.append(data.html);
-
-                if (!parentComment.closest('.comment-box').data('parent-comment-id') && repliesContainer.children().length === 1){
-                    let toggleButton = $('<button class="toggle-replies-button" data-comment-id="' + data.parent_comment_id + '">Скрыть комментарии</button>');
-                    parentComment.append(toggleButton);
-                }
-            } else {
-                const commentList = $('#comment-list');
-                commentList.prepend(data.html);
-            }
-            $('#comment-form')[0].reset();
-            $('#id_parent_comment_id').val('');
-            $('#comment-form-container').hide();
-            $('.add-comment-button').text('Добавить комментарий');
-            $('.reply-button').text('Ответить');
-        }else if (data.errors) {
+            const eventDetail = {
+                html: data.html,
+                parentCommentId: data.parent_comment_id,
+                commentId: data.comment_id
+            };
+            const newCommentEvent = new CustomEvent('newComment', { detail: eventDetail });
+            document.dispatchEvent(newCommentEvent);
+        } else if (data.errors) {
             let fieldNames = Object.keys(data.errors);
             let firstFieldErrors = data.errors[fieldNames[0]];
             $('#comment-form-errors').text(firstFieldErrors);
         }
-
     };
 
+    
+    document.addEventListener('newComment', function(event) {
+        const { html, parentCommentId, commentId } = event.detail;
+    
+        if (parentCommentId) {
+            let parentComment = $('#comment-' + parentCommentId);
+            let repliesContainer = $('#replies-' + parentCommentId);
+            repliesContainer.show();
+            repliesContainer.append(html);
+    
+            if (!parentComment.closest('.comment-box').data('parent-comment-id') && repliesContainer.children().length === 1) {
+                let toggleButton = $('<button class="toggle-replies-button" data-comment-id="' + parentCommentId + '">Скрыть комментарии</button>');
+                parentComment.append(toggleButton);
+            }
+        } else {
+            const commentList = $('#comment-list');
+            commentList.prepend(html);
+        }
+    
+        if (savedTxtFile || savedImageFile) {
+            const fileFormData = new FormData();
+            if (savedTxtFile && savedTxtFile.size > 0) {
+                fileFormData.append('text_file', savedTxtFile);
+            }
+            if (savedImageFile && savedImageFile.size > 0) {
+                fileFormData.append('image', savedImageFile);
+            }
+    
+            fileFormData.append('comment_id', commentId);
+            fileFormData.forEach((value, key) => {
+                console.log(key, value);
+            });
+    
+            $.ajax({
+                url: FilecommentUrl,
+                method: 'POST',
+                data: fileFormData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                success: function(data) {
+                    const commentId = data.comment_id;
+                    const commentElement = $('#comment-' + commentId);
+    
+                    if (commentElement.length > 0) {
+                        if (data.image_file) {
+                            const imageElement = '<img src="/media/' + data.image_file + '" alt="comment image" class="comment-image">';
+                            commentElement.find('p').first().after(imageElement);
+                        }
+                        if (data.txt_file) {
+                                commentElement.append('<a href="/media/' + data.txt_file + '" target="_blank" class="comment-text-file">Скачать текстовый файл</a>');
+                            
+                        }
+                    } else {
+                        console.log('Comment element not found for ID:', commentId);
+                    }
+                },
+                error: function(response) {
+                    console.log(response);
+                }
+            });
+        }
+    
+        savedImageFile = null;
+        savedTxtFile = null;
+    
+        $('#comment-form')[0].reset();
+        $('#id_parent_comment_id').val('');
+        $('#comment-form-container').hide();
+        $('.add-comment-button').text('Добавить комментарий');
+        $('.reply-button').text('Ответить');
+    });
     $('#comment-form').on('submit', function(event) {
         event.preventDefault();
         let formData = new FormData(this);
@@ -68,57 +141,44 @@ $(document).ready(function() {
             return;
         }
 
-
-        var txtFile= formData.get('text_file')
-        var image= formData.get('image')
-
         let jsonData = {};
         formData.forEach((value, key) => {
+            
+            console.log(key, value);
             jsonData[key] = value;
         });
+
         
-        if (txtFile.size > 0 || image.size > 0) {
+
+        const txtFile = formData.get('text_file');
+        const image = formData.get('image');
+        
+
+        if (txtFile.size > 0 ) {
             if (txtFile.size > 0) {
                 var filetype = txtFile.name.split('.').pop();
-    
-                if (filetype !== 'txt'){
+
+                if (filetype !== 'txt') {
                     alert('Only txt files allowed');
                     return;
                 }
+                savedTxtFile = txtFile;
+                
             }
+        }
+        if(image.size > 0){
+            
+                var filetype = image.name.split('.').pop();
 
-            var fileformData = new FormData();
-            fileformData.append('text_file', txtFile)
-            fileformData.append('image', image);
-            $.ajax({
-                url: commentUrl,
-                method: "POST",
-                data: fileformData,
-                processData: false, 
-                contentType: false,
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                success: function(data) {
-                    console.log("success", data)
-                    jsonData['image']=data.image_file;
-                    jsonData['text_file']=data.txt_file; 
-                    
-                    console.log(JSON.stringify(jsonData));
-                    socket.send(JSON.stringify(jsonData));
- 
-                },  
-
-
-                error: function(response) {
-                    console.log(response);
+                if (filetype !== 'jpg' && filetype !== 'gif' && filetype !== 'png') {
+                    alert('Only JPG, GIF, PNG files allowed');
+                    return;
                 }
-            });
+                
+            savedImageFile = image;
         }
-        else {
-            socket.send(JSON.stringify(jsonData));
-        }
-
+        const token = generateJWT(jsonData, secretKey);
+        socket.send(token);
     });
 
 

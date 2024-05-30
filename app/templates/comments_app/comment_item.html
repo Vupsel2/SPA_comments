@@ -1,15 +1,24 @@
 <li class="comment-box" id="comment-{{ comment.id }}">
     <span class="user-name">{{ comment.user_name }}</span>
     <p>{{ comment.text|safe }}</p>
-    {% if comment.image %}
-        <img src="{{ comment.image.url }}" alt="comment image">
-        <div>"{{ comment.image.url }}"</div>
+    {% if comment.files.all %}
+        {% for file in comment.files.all %}
+            {% if file.image %}
+                <img src="/media/{{ file.image }}" alt="comment image">
+            {% endif %}
+        {% endfor %}
     {% endif %}
-    {% if comment.text_file %}
-        <a href="{{ comment.text_file.url }}" target="_blank">Скачать текстовый файл</a>
-    {% endif %}
+
     <button class="reply-button" data-comment-id="{{ comment.id }}">Ответить</button>
-    {% if not comment.parent_comment and comment.replies.exists %}
+
+    {% if comment.files.all %}
+        {% for file in comment.files.all %}
+            {% if file.text_file %}
+                <a href="/media/{{ file.text_file }}" target="_blank">Скачать текстовый файл</a>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if  comment.replies.exists %}
         <button class="toggle-replies-button" data-comment-id="{{ comment.id }}">Посмотреть комментарии</button>
     {% endif %}
 

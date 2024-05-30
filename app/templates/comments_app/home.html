@@ -33,6 +33,12 @@
     <form id="comment-form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        {{ form_files.as_p }}
+        <label for="captcha">Введите CAPTCHA:</label>
+        <input type="text" id="captcha" name="captcha" required>
+        <br>
+        <img src="{% url 'generate_captcha' %}" alt="CAPTCHA">
+        <br>
         <div class="html-tag-buttons">
             <button type="button" data-tag="strong">[strong]</button>
             <button type="button" data-tag="i">[i]</button>
@@ -51,6 +57,6 @@
     </div>
 </div>
 <script>
-    const commentUrl = "{% url 'upload_files' %}";
+    const FilecommentUrl = "{% url 'upload_files' %}";
 </script>
 {% endblock %}
