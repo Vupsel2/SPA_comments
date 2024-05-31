@@ -4,6 +4,7 @@ from django.forms.models import inlineformset_factory
 from .models import Comment, CommentFile
 import re
 from bleach import clean
+from captcha.fields import CaptchaField
 
 ALLOWED_TAGS = ['a', 'i', 'code', 'strong']
 ALLOWED_ATTRIBUTES = {'a': ['href', 'title']}
@@ -22,6 +23,7 @@ class CommentFileForm(forms.ModelForm):
 
 class comments_form(forms.ModelForm):
     parent_comment_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    captcha = CaptchaField()
     class Meta:
         model = Comment
         fields = ['user_name', 'email', 'homepage', 'text',]

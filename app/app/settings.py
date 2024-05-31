@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -40,13 +41,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'captcha',
     'comments_app',
     
     
 ]
 ASGI_APPLICATION = 'app.asgi.application'
 
+CAPTCHA_CHALLENGE_FUNCT = 'comments_app.utils.captcha_challenge'
+
+CAPTCHA_LENGTH = 6
+CAPTCHA_IMAGE_SIZE = (150, 50)
+CAPTCHA_NOISE_FUNCTIONS = (
+    'captcha.helpers.noise_arcs',
+    'captcha.helpers.noise_dots',
+)
+CAPTCHA_LETTER_ROTATION = (-35, 35)
+CAPTCHA_FONT_SIZE = 32
+CAPTCHA_FOREGROUND_COLOR = '#000000'
+CAPTCHA_BACKGROUND_COLOR = '#ffffff'
+CAPTCHA_TIMEOUT = 5
 
 
 MIDDLEWARE = [
@@ -60,8 +74,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'app.urls'
-RECAPTCHA_PUBLIC_KEY = 'your-public-key'
-RECAPTCHA_PRIVATE_KEY = 'your-private-key'
+
 
 TEMPLATES = [
     {
@@ -88,12 +101,12 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
     
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db_dzencode',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': '192.168.31.18',
-        'PORT': '3306',
+        'ENGINE': os.getenv('ENGINE'),
+        'NAME': os.getenv('NAME'),
+        'USER': os.getenv('USER'),
+        'PASSWORD': os.getenv('PASSWORD'),
+        'HOST': os.getenv('HOST'),
+        'PORT': os.getenv('PORT'),
     
     }
 }

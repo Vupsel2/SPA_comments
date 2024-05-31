@@ -1,6 +1,10 @@
 import queue
 import jwt
-SECRET_KEY = 'qwesaxxcacxz#q123'
+import random
+import os
+
+
+SECRET_KEY = os.getenv('SECRET_KEY'),
 message_queue = queue.Queue()
 
 def add_message(message):
@@ -15,7 +19,6 @@ def get_message():
 
 
 def decode_jwt(token):
-    print("decode_jwt",token)
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         return payload
@@ -23,3 +26,13 @@ def decode_jwt(token):
         return None
     except jwt.InvalidTokenError:
         return None
+    
+
+def captcha_challenge():
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    challenge_text = ''.join(random.choices(chars, k=5))
+    return challenge_text, challenge_text
+
+
+
+

@@ -34,11 +34,8 @@
         {% csrf_token %}
         {{ form.as_p }}
         {{ form_files.as_p }}
-        <label for="captcha">Введите CAPTCHA:</label>
-        <input type="text" id="captcha" name="captcha" required>
-        <br>
-        <img src="{% url 'generate_captcha' %}" alt="CAPTCHA">
-        <br>
+        
+        
         <div class="html-tag-buttons">
             <button type="button" data-tag="strong">[strong]</button>
             <button type="button" data-tag="i">[i]</button>
@@ -46,10 +43,11 @@
             <button type="button" data-tag="a">[a]</button>
         </div>
         <div id="comment-form-errors" class="form-errors"></div>
+        
+        
         <button type="submit">Отправить</button>
         <button type="button" id="previewButton">Предпросмотр</button>
     </form>
-    
     <div id="previewArea" style="display:none; border: 1px solid #ccc; padding: 10px; margin-top: 10px;">
         <h3>Предпросмотр</h3>
         <p class="preview-text"></p>

@@ -117,7 +117,8 @@ $(document).ready(function() {
                     }
                 },
                 error: function(response) {
-                    console.log(response);
+                    
+                    $('#comment-form').text(response.responseJSON.error);
                 }
             });
         }
@@ -131,8 +132,17 @@ $(document).ready(function() {
         $('.add-comment-button').text('Добавить комментарий');
         $('.reply-button').text('Ответить');
     });
+
+
+
     $('#comment-form').on('submit', function(event) {
         event.preventDefault();
+        
+            $.get("captcha/refresh/", function(data) {
+                $('img[alt="captcha"]').attr('src', data.image_url);
+                $('input[name="captcha_0"]').val(data.key);
+            });
+        
         let formData = new FormData(this);
 
         var textWithoutTags = formData.get('text').replace(/<[^>]+>/g, '');

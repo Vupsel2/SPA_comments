@@ -5,6 +5,7 @@ from .forms import comments_form
 from .models import Comment
 from asgiref.sync import sync_to_async
 from .utils import decode_jwt
+from django.contrib.sessions.models import Session
 
 class CommentConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -14,24 +15,18 @@ class CommentConsumer(AsyncWebsocketConsumer):
         pass
 
     async def receive(self, text_data):
-        print("\n\n\ntext_data\n\n\n",text_data)
-        
         if text_data:
             data = decode_jwt(text_data)
             if data:
-                form = comments_form(data)
-                if form.is_valid():
-                    print("sent",data)
-                    await sync_to_async(add_message)(data)
-                    await self.process_queue()
-                else:
-                    errors = dict(form.errors)
-                    response_data = {'errors': errors}
-                    await self.send(text_data=json.dumps(response_data))
-                    
-            else:self.send(text_data=json.dumps({'error': 'Invalid token'}))
-            
-        else:self.send(text_data=json.dumps({'error': 'Token not provided'}))
+                
+                await sync_to_async(add_message)(data)
+                await self.process_queue()
+ 
+            else:
+                await self.send(text_data=json.dumps({'error': 'Invalid token'}))
+        else:
+            await self.send(text_data=json.dumps({'error': 'Token not provided'}))
+
                 
     async def process_queue(self):
         while True:
@@ -41,8 +36,8 @@ class CommentConsumer(AsyncWebsocketConsumer):
             
             form = comments_form(message)
             
-            
-            if form.is_valid():
+            is_valid = await sync_to_async(form.is_valid)()
+            if is_valid:
                 comment = await sync_to_async(form.save)()
                 
                 parent_comment_id = form.cleaned_data.get('parent_comment_id')
@@ -60,4 +55,6 @@ class CommentConsumer(AsyncWebsocketConsumer):
                 }
                 await self.send(text_data=json.dumps(response))
             else:
-                print("Invalid form data")
+                    errors = await sync_to_async(lambda: dict(form.errors))()
+                    response_data = {'errors': errors}
+                    await self.send(text_data=json.dumps(response_data))

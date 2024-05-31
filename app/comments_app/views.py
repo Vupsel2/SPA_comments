@@ -26,11 +26,7 @@ def generate_captcha(request):
 
 def upload_files(request):
     if request.method == 'POST':
-        captcha_input = request.POST.get('captcha')
-        captcha_text = request.session.get('captcha_text')
-        
-        if captcha_input != captcha_text:
-            return render(request, 'your_template.html', {'error': 'CAPTCHA incorrect'})
+
         comment_id = request.POST.get('comment_id')
         comment_base = get_object_or_404(Comment, id=comment_id)
         form = CommentFileForm(request.POST, request.FILES)
@@ -40,7 +36,7 @@ def upload_files(request):
             comment.comment = comment_base
             comment.save()
             response_data={'comment_id': comment_base.id}
-            errors = {}
+           
             
             if comment.text_file:
                 response_data['txt_file'] = os.path.join( comment.text_file.name)
@@ -54,10 +50,6 @@ def upload_files(request):
                     img.save(os.path.join(settings.MEDIA_ROOT,comment.image.name))
                 response_data['image_file'] = os.path.join(image.name)
                 
-                
-            
-            if errors:
-                return JsonResponse({'errors': errors}, status=400)
 
             return JsonResponse(response_data)
 
