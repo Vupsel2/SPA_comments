@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  nginx:
+    build: ./nginx
+    image: nginx
+    container_name: "nginx_cont"
+    ports:
+      - 80:80
+    volumes:
+      - static_volume:/staticfiles
+      - static_media:/media
+    depends_on:
+      - django_app
+  django_app:
+    image: django_app
+    build:
+      context: ./app
+    container_name: "django_cont"
+    ports:
+      - 8001:8001
+    env_file:
+      - "./.env"
+    volumes:
+      - static_volume:/app/staticfiles
+      - static_media:/app/media
+    depends_on:
+      - db
+    restart:
+       "always"
+ #   environment:
+#      - DJANGO_SETTINGS_MODULE=app.settings
+
+  db:
+    image: mysql
+    container_name: "db_cont"
+    ports:
+    - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${PASSWORD}
+      - MYSQL_DATABASE=${NAME}
+    volumes:
+      - ./data/mysql/db:/var/lib/mysql
+    env_file:
+      - ./.env
+
+volumes:
+  static_volume:
+  static_media:

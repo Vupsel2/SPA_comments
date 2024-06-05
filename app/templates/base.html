@@ -6,9 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{%static 'css/style.css'%}">
     <title>Comments App</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonwebtoken/8.5.1/browser/jsonwebtoken.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.20/jsrsasign-all-min.js"></script>
+    <script src="{% static 'js/libs/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/libs/jsrsasign-all-min.js' %}"></script>
     
 
 
@@ -16,6 +15,7 @@
 <body>
     {%block content%}
     {%endblock%}
+    <link rel="stylesheet" href="{%static 'css/style.css'%}">
     <script src="{% static 'js/comments.js' %}"></script>
     
 </body>

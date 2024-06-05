@@ -10,9 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
 import os
-
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,19 +21,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ef_q6vu*=()rd#&c-q*bc_%1y^=a8=70uvhugs=zg9#42+nab6'
-
+SECRET_KEY =os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+DEBUG = False
+JWT_KEY=os.getenv("SECRET_KEY")
+ALLOWED_HOSTS = ['django.test.com','django']
+CSRF_TRUSTED_ORIGINS = [
+    'http://192.168.31.18',
+]
 
 # Application definition
 
 INSTALLED_APPS = [
     'channels',
-    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -74,7 +73,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'app.urls'
-
+CSRF_COOKIE_NAME = "csrftoken"
 
 TEMPLATES = [
     {
@@ -142,15 +141,15 @@ USE_I18N = True
 
 USE_TZ = True
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  
-
+STATICFILES_DIRS = [BASE_DIR / 'static']  
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
