@@ -19,8 +19,14 @@ SPA_comments is a Single Page Application (SPA) designed to provide a real-time 
 ### Prerequisites
 
 
-- **Docker**: Needed for containerization and easy setup.
-
+- **Docker и docker-compose**: Needed for containerization and easy setup.
+  
+**Linux:**
+```bash
+apt-get update
+apt-get install docker-compose
+apt-get install Docker
+```
 ___
 ### Getting Started
 
@@ -57,6 +63,15 @@ docker-compose up --build
 #### Access the application
 ###### Navigate to http://localhost:80 to view and interact with the application.
 
+## Install on the server
+#### Go to SPA_comments/app/app/settings.py and set the following
+
+```bash
+ALLOWED_HOSTS = ['your-host']
+CSRF_TRUSTED_ORIGINS = ['http://your-host',]
+
+```
+
 ___
 ___
 # SPA_comments
@@ -77,7 +92,14 @@ SPA_comments — это одностраничное приложение (SPA),
 
 ### Требования
 
-- **Docker**: необходим для контейнеризации и простой настройки.
+- **Docker и docker-compose**: необходим для контейнеризации и простой настройки.
+  
+**Linux:**
+```bash
+apt-get update
+apt-get install docker-compose
+apt-get install Docker
+```
 
 ___
 ### Начало работы
@@ -113,3 +135,11 @@ docker-compose up --build
 
 #### Доступ к приложению
 ###### Перейдите по  http://localhost:80
+
+## Установка на свервере
+#### Перейдите в SPA_comments/app/app/settings.py и выставьте
+```bash
+ALLOWED_HOSTS = ['your-host']
+CSRF_TRUSTED_ORIGINS = ['http://your-host',]
+
+```
