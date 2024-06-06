@@ -19,7 +19,8 @@ SPA_comments is a Single Page Application (SPA) designed to provide a real-time 
 ### Prerequisites
 
 
-- **Docker и docker-compose**: Needed for containerization and easy setup.
+- **Docker and docker-compose**: Needed for containerization and easy setup.
+- **DNS** edit your local host file(/etc/hosts) and add necessary ip address to same as WEBSITE_NAME and DOMAIN_NAME
   
 **Linux:**
 ```bash
@@ -50,6 +51,10 @@ USER= ''
 PASSWORD= ''
 HOST= ''
 PORT= ''
+WEBSITE_NAME= ''
+
+WEBSITE_NAME="django"
+DOMAIN_NAME=".test"
 ```
 ___
 #### Using Docker
@@ -61,85 +66,6 @@ docker-compose up --build
 ```
 
 #### Access the application
-###### Navigate to http://localhost:80 to view and interact with the application.
+###### Navigate to http://django.test (depends on WEBSITE_NAME and DOMAIN_NAME) to view and interact with the application.
 
-## Install on the server
-#### Go to SPA_comments/app/app/settings.py and set the following
 
-```bash
-ALLOWED_HOSTS = ['your-host']
-CSRF_TRUSTED_ORIGINS = ['http://your-host',]
-
-```
-
-___
-___
-# SPA_comments
-
-SPA_comments — это одностраничное приложение (SPA), предназначенное для добавления комментариев в реальном времени. Этот проект демонстрирует использование современных инструментов и фреймворков веб-разработки для создания отзывчивого и интерактивного приложения.
-
-### Особенности
-
-- **Комментарии в реальном времени**: пользователи могут публиковать и просматривать комментарии в реальном времени.
-- **Одностраничное приложение**: пользовательский опыт без перезагрузки страниц.
-- **Поддержка Docker**: простая настройка и развертывание с использованием Docker.
-- **CAPTCHA**: защита от спама.
-- **Неограниченные ответы**: на каждую запись можно написать сколько угодно ответов (каскадное отображение).
-- **Сортируемые заглавные комментарии**: заглавные комментарии (те, которые не являются ответом) должны выводиться в виде таблицы, с возможностью сортировки по полям: Имя пользователя, Электронная почта и Дата добавления (как в порядке убывания, так и в обратном). Таблица активируется нажатием кнопки "Таблица комментариев".
-- **Разбиение на страницы**: сообщения должны разбиваться на страницы по 25 сообщений на каждой.
-- **Безопасность**: защита от XSS атак и SQL-инъекций.
-- **Сортировка по умолчанию**: LIFO (последним пришел, первым ушел).
-
-### Требования
-
-- **Docker и docker-compose**: необходим для контейнеризации и простой настройки.
-  
-**Linux:**
-```bash
-apt-get update
-apt-get install docker-compose
-apt-get install Docker
-```
-
-___
-### Начало работы
-
-#### Клонирование репозитория
-
-```bash
-git clone https://github.com/Vupsel2/SPA_comments.git
-
-cd SPA_comments
-```
-
-### Заполните .env
-
-```bash
-JWT_KEY = ''
-SECRET_KEY='*django secretkey*'
-
-ENGINE= 'django.db.backends.mysql'
-NAME= ''
-USER= ''
-PASSWORD= ''
-HOST= ''
-PORT= ''
-```
-#### Использование Docker
-
-##### Сборка и запуск контейнеров:
-
-```bash
-docker-compose up --build
-```
-
-#### Доступ к приложению
-###### Перейдите по  http://localhost:80
-
-## Установка на свервере
-#### Перейдите в SPA_comments/app/app/settings.py и выставьте
-```bash
-ALLOWED_HOSTS = ['your-host']
-CSRF_TRUSTED_ORIGINS = ['http://your-host',]
-
-```
