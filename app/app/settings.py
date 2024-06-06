@@ -12,25 +12,31 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
-
+#from dotenv import load_dotenv 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
+#dotenv_path = Path('../../.env')
+#load_dotenv(dotenv_path=dotenv_path)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY =os.getenv('SECRET_KEY')
+#print("\n\n\n\n"+SECRET_KEY+"\n\n\n")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-JWT_KEY=os.getenv("SECRET_KEY")
-ALLOWED_HOSTS = ['localhost']
+DEBUG = True
+JWT_KEY=os.getenv("JWT_KEY")
+
+WEBSITE_NAME=os.getenv("WEBSITE_NAME")
+DOMAIN_NAME=os.getenv("DOMAIN_NAME")
+ALLOWED_HOSTS = [WEBSITE_NAME]
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost',
+    'http://'+WEBSITE_NAME+DOMAIN_NAME
 ]
 
-# Application definition
+#CORS_REPLACE_HTTPS_REFERER = True
+
+#CSRF_COOKIE_DOMAIN = 'test'
 
 INSTALLED_APPS = [
     'channels',
@@ -100,12 +106,12 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
     
-        'ENGINE': os.getenv('ENGINE'),
-        'NAME': os.getenv('NAME'),
-        'USER': os.getenv('USER'),
-        'PASSWORD': os.getenv('PASSWORD'),
-        'HOST': os.getenv('HOST'),
-        'PORT': os.getenv('PORT'),
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     
     }
 }
