@@ -4,7 +4,7 @@ import random
 import os
 
 
-SECRET_KEY = os.getenv('SECRET_KEY'),
+SECRET_KEY = os.getenv('JWT_KEY')
 message_queue = queue.Queue()
 
 def add_message(message):

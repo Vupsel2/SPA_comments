@@ -1,0 +1,10 @@
+Django
+mysqlclient
+pillow
+PyJWT==2.8.0
+django-simple-captcha
+channels==3.0.5
+bleach
+captcha
+gunicorn
+daphne

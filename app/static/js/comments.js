@@ -1,7 +1,7 @@
 let savedTxtFile = null;
 let savedImageFile = null;
 
-const secretKey = 'qwesaxxcacxz#q123'; 
+let secretKey = null;
 
 function generateJWT(payload, secretKey) {
     const header = { alg: "HS256", typ: "JWT" };
@@ -26,7 +26,7 @@ function getCookie(name) {
     return cookieValue;
 }
 const csrftoken = getCookie('csrftoken');
-
+//console.log(csrftoken)
 $(document).ready(function() {
     const socket = new WebSocket('ws://' + window.location.host + '/ws/comments/');
     socket.onopen = function(event) {
@@ -36,12 +36,23 @@ $(document).ready(function() {
     socket.onclose = function(event) {
         console.log("WebSocket is closed now.");
     };
-    socket.onerror = function(error) {
-        console.log("WebSocket Error: ", error);
-    };
+	socket.onerror = function(event) {
+    console.log("WebSocket Error: ", event);
+    console.log("Error Message: ", event.message);
+    if (event.code) {
+        console.log("Error Code: ", event.code);
+    }
+    if (event.reason) {
+        console.log("Error Reason: ", event.reason);
+    }
+};
 
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
+        if (data.token) {
+            secretKey = data.token;
+            //console.log("Received JWT Token:", secretKey);
+		}
         if (data.html) {
             const eventDetail = {
                 html: data.html,
@@ -86,9 +97,10 @@ $(document).ready(function() {
             }
     
             fileFormData.append('comment_id', commentId);
-            fileFormData.forEach((value, key) => {
-                console.log(key, value);
-            });
+//	    console.log("FILEEEEEE")
+//            fileFormData.forEach((value, key) => {
+//                console.log(key, value);
+//            });
     
             $.ajax({
                 url: FilecommentUrl,
@@ -154,7 +166,7 @@ $(document).ready(function() {
         let jsonData = {};
         formData.forEach((value, key) => {
             
-            console.log(key, value);
+//            console.log(key, value);
             jsonData[key] = value;
         });
 

@@ -4,12 +4,14 @@ from .utils import add_message, get_message
 from .forms import comments_form
 from .models import Comment
 from asgiref.sync import sync_to_async
-from .utils import decode_jwt
+from .utils import decode_jwt, SECRET_KEY
 from django.contrib.sessions.models import Session
+
 
 class CommentConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
+        await self.send(text_data=json.dumps({'token': SECRET_KEY}))
 
     async def disconnect(self, close_code):
         pass

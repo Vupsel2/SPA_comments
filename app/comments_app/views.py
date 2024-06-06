@@ -53,7 +53,7 @@ def upload_files(request):
 
             return JsonResponse(response_data)
 
-    return JsonResponse({'errors': 'Bad request method'}, status=400)
+    return JsonResponse({'errors': 'Bad request method',"request":request.method}, status=400)
 
 def home(request):
     comment_list = Comment.objects.filter(parent_comment__isnull=True).order_by('-created_date')
