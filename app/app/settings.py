@@ -25,9 +25,9 @@ SECRET_KEY =os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 JWT_KEY=os.getenv("SECRET_KEY")
-ALLOWED_HOSTS = ['django.test.com','django']
+ALLOWED_HOSTS = ['localhost']
 CSRF_TRUSTED_ORIGINS = [
-    'http://192.168.31.18',
+    'http://localhost',
 ]
 
 # Application definition

@@ -1,8 +1,5 @@
 media
 __pycache__
 migrations
-<<<<<<< HEAD
 .env
-=======
-.env
->>>>>>> origin/main
+data
