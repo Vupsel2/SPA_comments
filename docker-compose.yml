@@ -37,8 +37,8 @@ services:
     ports:
     - 3306:3306
     environment:
-      - MYSQL_ROOT_PASSWORD=${PASSWORD}
-      - MYSQL_DATABASE=${NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     volumes:
       - ./data/mysql/db:/var/lib/mysql
     env_file:
