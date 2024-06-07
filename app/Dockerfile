@@ -15,11 +15,11 @@ RUN pip install -r requirements.txt
 #RUN pip install -U python-dotenv
 COPY . .
 COPY wait.sh /usr/local/bin/wait.sh
-RUN pwd > /tmp/pwd_output && cat /tmp/pwd_output
 
 RUN  rm -rf /app/staticfiles && \
 	 mkdir -p /app/staticfiles && \
-	 chmod 755 /app/staticfiles
+	 chmod 755 /app/staticfiles && \
+	 chmod +x /usr/local/bin/wait.sh
 
 EXPOSE 8000
 #RUN python manage.py collectstatic --noinput
